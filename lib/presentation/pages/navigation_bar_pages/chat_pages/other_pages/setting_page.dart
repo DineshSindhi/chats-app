@@ -1,10 +1,10 @@
-import 'package:chats/presentation/on_board/phone_ver.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data/model/user_model.dart';
 import '../../../../../domain/ui_helper.dart';
+import '../../../../on_board/phone_no_verification_page.dart';
 import 'user_profile_page.dart';
 
 class SettingPage extends StatelessWidget {

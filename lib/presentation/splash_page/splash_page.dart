@@ -1,12 +1,9 @@
 import 'dart:async';
-
-import 'package:chats/presentation/on_board/phone_ver.dart';
 import 'package:chats/presentation/pages/navigation_bar_pages/navigation_bar_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+import '../on_board/phone_no_verification_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
