@@ -3,17 +3,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../data/model/call_model.dart';
+
 class FireBaseRepository {
   static final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   static final FirebaseFirestore fireStore = FirebaseFirestore.instance;
   static const String PREF_USER_ID = 'userId';
   static const String CHATROOM_COLLECTION = 'chatroom';
   static const String MESSAGE_COLLECTION = 'message';
+  static const String CALLROOM_COLLECTION = 'callRoom';
+  static const String CALLS_COLLECTION = 'calls';
 
-  static Future<String> getId() async {
-    var prefs = await SharedPreferences.getInstance();
-    return prefs.getString(PREF_USER_ID)!;
-  }
+  // static Future<String> getId() async {
+  //   var prefs = await SharedPreferences.getInstance();
+  //   return prefs.getString(PREF_USER_ID)!;
+  // }
 
   static getChatId({required String fromId, required String toId}) {
     if (fromId.hashCode <= toId.hashCode) {
@@ -68,13 +72,9 @@ class FireBaseRepository {
     return fireStore.collection(CHATROOM_COLLECTION).doc(chatId).collection(
         MESSAGE_COLLECTION).snapshots();
   }
-
-
   static Stream<QuerySnapshot<Map<String,dynamic>>>getLiveChatContactStream({required String fromId,}){
     return fireStore.collection(CHATROOM_COLLECTION).where('ids',arrayContains: fromId).snapshots();
   }
-
-
   static Future<DocumentSnapshot<Map<String,dynamic>>>getUserByUserId({required String userId,}){
     return fireStore.collection('users').doc(userId).get();
   }
@@ -105,6 +105,27 @@ class FireBaseRepository {
     return fireStore.collection(CHATROOM_COLLECTION).doc(chatId).collection(MESSAGE_COLLECTION).
     where('isRead',isEqualTo: '').where('fromId',isEqualTo: toId)
         .snapshots();
+  }
+
+///calls
+  static sendCallMessage({required String toId,required bool isVideoCall} ) async {
+    var fromId = firebaseAuth.currentUser!.uid;
+    var chatId = getChatId(fromId: fromId, toId: toId);
+    var currentTime = DateTime
+        .now()
+        .millisecondsSinceEpoch
+        .toString();
+    var msgModel = MessageModel(msgId: currentTime,
+        msg: '',
+        sendAt: currentTime,
+        fromId: fromId,
+        toId: toId,
+        msgType: 2,
+      isVideoCall: isVideoCall
+    );
+    fireStore.collection(CHATROOM_COLLECTION).doc(chatId).collection(MESSAGE_COLLECTION).doc(currentTime).set(msgModel.toMap());
+
+
   }
 
 }

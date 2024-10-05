@@ -1,11 +1,11 @@
-
 import 'dart:async';
-
 import 'package:chats/domain/ui_helper.dart';
 import 'package:chats/presentation/on_board/user_info_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../data/model/user_model.dart';
 class OtpPage extends StatefulWidget {
   String?verifyId;
   String?mobileNo;
@@ -22,25 +22,27 @@ class _OtpPageState extends State<OtpPage> {
   var otpController5=TextEditingController();
   var otpController6=TextEditingController();
 
-  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  FirebaseAuth firebaseAuth=FirebaseAuth.instance;
+  FirebaseFirestore fireStore = FirebaseFirestore.instance;
   bool isLoading=false;
   Timer? timer;
   int timerCount=59;
   @override
 void initState() {
-    // TODO: implement initState
     super.initState();
     time();
   }
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.teal,
         centerTitle: true,
         leading: Icon(Icons.verified_outlined,color: Colors.white,),
         title: Text('Enter Otp for Mobile Verification',style: TextStyle(color: Colors.white),),
       ),
-      body: Column(mainAxisAlignment: MainAxisAlignment.center,
+      body: Column(
         children: [
+          SizedBox(height: 100,),
           Column(children: [
             mText20('Enter Otp for Mobile Verification'),
             Row(mainAxisAlignment: MainAxisAlignment.center,
@@ -53,7 +55,7 @@ void initState() {
 
             Row(mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                myTextField(controller: otpController1,first: true,last: false,),
+                myTextField(controller: otpController1,first: true,last: false,mFocus: true),
                 SizedBox(width: 11,),
                 myTextField(controller: otpController2,first: false,last: false),
                 SizedBox(width: 11,),
@@ -79,19 +81,23 @@ void initState() {
                       var cred=await firebaseAuth.signInWithCredential(credential);
                       if(cred.user!.uid.isNotEmpty){
                         isLoading=true;
-                        setState(() {
-
+                        setState(() {});
+                        Timer(Duration(seconds: 2), () {
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UserInfoPage(uId: cred.user!.uid,mobileNo: widget.mobileNo!,)));
                         });
                         Timer(Duration(seconds: 2), () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(uId: cred.user!.uid,mobile_no: '${widget.mobileNo}',),));
+                          setState(() {
+                            isLoading=false;
+                          });
                         });
+
                       }
                     }
 
                   },
                   child: isLoading?Row(mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(),
+                      CircularProgressIndicator(strokeWidth: 5,),
                       SizedBox(width: 8,),
                       Text(
                         'Verify',
@@ -149,13 +155,15 @@ void initState() {
   }
   time(){
     timer=Timer.periodic(Duration(seconds: 1), (timer) {
+      if(mounted){
       setState(() {
         if(timerCount>0){
           timerCount--;
         }else{
           timer.cancel();
         }
-      });
+      });}
     });
   }
+
 }

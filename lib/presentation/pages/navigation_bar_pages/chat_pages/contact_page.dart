@@ -61,6 +61,7 @@ class _ContactPageState extends State<ContactPage> {
   @override
   Widget build(BuildContext context) {
     var conLength = firebaseContacts.length + phoneContacts.length;
+
     return Scaffold(
         appBar: isSearch
             ? AppBar(
@@ -140,9 +141,14 @@ class _ContactPageState extends State<ContactPage> {
                         PopupMenuItem(
                           child: Text('Refresh'),
                           onTap: () {
-                            // setState(() {
-                            //   isLoading = true;
-                            // });
+                            setState(() {
+                              isLoading = true;
+                            });
+                            Timer(Duration(seconds: 2), () {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            });
 
                           },
                         ),
@@ -161,9 +167,6 @@ class _ContactPageState extends State<ContactPage> {
                 ? searchList1.isNotEmpty || searchList2.isNotEmpty
                     ? ListView(
                         children: [
-                          mText20P(searchList1.isNotEmpty
-                              ? 'Contacts on Chats'
-                              : ''),
                           ListTile(
                             leading: CircleAvatar(backgroundColor: Colors.teal,
                             child: Center(child: Icon(Icons.group_add,color: Colors.white,),),
@@ -182,6 +185,9 @@ class _ContactPageState extends State<ContactPage> {
                             ),
                             title: Text('New community',style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
+                          mText20P(searchList1.isNotEmpty
+                              ? 'Contacts on Chats'
+                              : ''),
                           ListView.builder(
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
@@ -189,6 +195,7 @@ class _ContactPageState extends State<ContactPage> {
                                 ? searchList1.length
                                 : firebaseContacts.length,
                             itemBuilder: (context, index) {
+
                               var mData = isSearch
                                   ? searchList1[index]
                                   : firebaseContacts[index];
@@ -252,6 +259,24 @@ class _ContactPageState extends State<ContactPage> {
                           )
                         : ListView(
                             children: [
+                              ListTile(
+                                leading: CircleAvatar(backgroundColor: Colors.teal,
+                                  child: Center(child: Icon(Icons.group_add,color: Colors.white,),),
+                                ),
+                                title: Text('New group',style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              ListTile(
+                                leading: CircleAvatar(backgroundColor: Colors.teal,
+                                  child: Center(child: Icon(Icons.person_add_alt_1,color: Colors.white,),),
+                                ),
+                                title: Text('New contact',style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              ListTile(
+                                leading: CircleAvatar(backgroundColor: Colors.teal,
+                                  child: Center(child: Icon(Icons.groups,color: Colors.white,),),
+                                ),
+                                title: Text('New community',style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
                               mText20P('Contacts on Chats'),
                               ListView.builder(
                                 physics: NeverScrollableScrollPhysics(),
@@ -336,18 +361,12 @@ class _ContactPageState extends State<ContactPage> {
                 image: firebaseContact.image,
                 isOnline: firebaseContact.isOnline));
             isContactFound = true;
+            firebaseContacts.removeWhere((element) => element.uId==fireBaseAuth.currentUser!.uid);
+
             break;
+
           }
-          if(firebaseContact.uId==fireBaseAuth.currentUser!.uid){
-            firebaseContacts.insert(0,UserModel(
-                uId: firebaseContact.uId,
-                name: '${firebaseContact.name}(you)',
-                mobile_no: firebaseContact.mobile_no,
-                about: 'Hey Chats',
-                image: firebaseContact.image,
-                isOnline: firebaseContact.isOnline) );
-          }
-        }
+         }
         if (!isContactFound) {
           phoneContacts.add(UserModel(
               uId: '',

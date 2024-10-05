@@ -21,8 +21,6 @@ class _MobileNoPageState extends State<MobileNoPage> {
 
   final _FORM_KEY=GlobalKey<FormState>();
   bool isLoading =false;
-  int timerCount=60;
-  Timer? timer;
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +32,9 @@ class _MobileNoPageState extends State<MobileNoPage> {
           leading: Icon(Icons.call,color: Colors.white),
           title: Text('Verify Your Mobile Number',style: TextStyle(color: Colors.white),),
         ),
-        body: Column(mainAxisAlignment: MainAxisAlignment.center,
+        body: Column(//mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(height: 100,),
             mText20('Verify Your Mobile Number'),
             Container(
               margin: EdgeInsets.all(20),
@@ -71,7 +70,7 @@ class _MobileNoPageState extends State<MobileNoPage> {
                 },
               ),
             ),
-
+            SizedBox(height: 15,),
             Container(
               margin: EdgeInsets.all(10),
               width: double.infinity,
@@ -95,7 +94,11 @@ class _MobileNoPageState extends State<MobileNoPage> {
                               Navigator.push(context, MaterialPageRoute(builder: (context) => OtpPage(verifyId: verificationId,mobileNo: '+91${phoneController.text}',),));
                             }
                           });
-
+                          Timer(Duration(seconds: 2), () {
+                            setState(() {
+                              isLoading=false;
+                            });
+                          });
                         },
                         codeAutoRetrievalTimeout: (String verificationId) {},
                       );
@@ -105,7 +108,7 @@ class _MobileNoPageState extends State<MobileNoPage> {
                   },
                   child: isLoading?Row(mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(),
+                      CircularProgressIndicator(strokeWidth: 5,),
                       SizedBox(width: 8,),
                       Text(
                         'Send Otp',
@@ -128,17 +131,5 @@ class _MobileNoPageState extends State<MobileNoPage> {
         ),
       ),
     );
-
-  }
-  time(){
-    timer=Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        if(timerCount>0){
-          timerCount--;
-        }else{
-          timer.cancel();
-        }
-      });
-    });;
   }
 }

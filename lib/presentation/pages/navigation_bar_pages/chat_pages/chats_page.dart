@@ -27,7 +27,7 @@ class _ChatsPageState extends State<ChatsPage> {
       appSign:'c4dbb69c88eae93262bc11695a7c283a9dda228c4f1d330a6f9d3b6f88935d2b',
       userID: firebaseAuth.currentUser!.uid,
       userName: 'you',
-      plugins: [ZegoUIKitSignalingPlugin()],
+      plugins: [ZegoUIKitSignalingPlugin(),],
     );
   }
   var searchController=TextEditingController();
@@ -80,7 +80,7 @@ class _ChatsPageState extends State<ChatsPage> {
                   mData.removeWhere((element) => element==firebaseAuth.currentUser!.uid);
                   return mData[0];
                 });
-                 return ListView.builder(
+                 return listUserId.isNotEmpty?ListView.builder(
                    shrinkWrap: true,
                    physics: NeverScrollableScrollPhysics(),
                    itemCount: listUserId.length,
@@ -91,7 +91,7 @@ class _ChatsPageState extends State<ChatsPage> {
                          mList.add(UserModel.fromDocs(uSnapshot.data!.data()!));
                          var mData=UserModel.fromDocs(uSnapshot.data!.data()!);
 
-                         return mList.isNotEmpty? ListTile(
+                         return ListTile(
                            onTap: (){
                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatsDataPage(name: '${mData.name}',uId: '${mData.uId}',image: '${mData.image}'),));
                            },
@@ -108,6 +108,15 @@ class _ChatsPageState extends State<ChatsPage> {
                              if(lastMsgSnapshot.hasData){
                                var lastMsg=MessageModel.fromDocs(lastMsgSnapshot.data!.docs[0].data());
                                return lastMsg.fromId==firebaseAuth.currentUser!.uid?
+                                   lastMsg.msgType==2?
+                                   Row(
+                                     children: [
+                                       Icon(lastMsg.isVideoCall==true?Icons.videocam_outlined:Icons.phone_rounded,color:Colors.blueGrey,size: 16,),
+                                       mySizedBoxW5(),
+                                       Text(lastMsg.isVideoCall==true?'Video Call':'Voice Call'),
+                                     ],
+                                   )
+                                       :
                                lastMsg.msgType==0?
                                Row(
                                  children: [
@@ -142,7 +151,16 @@ class _ChatsPageState extends State<ChatsPage> {
                                    Text('Photo'),
                                  ],
                                )
-                                   :lastMsg.msgType==0?
+                                   :
+                               lastMsg.msgType==2?
+                               Row(
+                                 children: [
+                                   Icon(lastMsg.isVideoCall==true?Icons.videocam_outlined:Icons.phone_rounded,color:Colors.blueGrey,size: 16,),
+                                   mySizedBoxW5(),
+                                   Text(lastMsg.isVideoCall==true?'Video Call':'Voice Call'),
+                                 ],
+                               ):
+                               lastMsg.msgType==0?
                                SizedBox(
                                  width: 200,
                                  //height:30,
@@ -204,8 +222,7 @@ class _ChatsPageState extends State<ChatsPage> {
                              ],),
                            ),
 
-                         ):
-                             Center(child: Text('No Chat Yet..'),);
+                         );
                        }else{
                          return Container();
                        }
@@ -214,7 +231,8 @@ class _ChatsPageState extends State<ChatsPage> {
                      );
 
 
-                   },);
+                   },):
+              Center(child: Text('No Chat Yet..'),);
             }
               return Container();
             }

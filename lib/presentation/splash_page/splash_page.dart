@@ -33,8 +33,9 @@ class _SplashPageState extends State<SplashPage> {
     );
   }
 
-   login(){
-    Timer(Duration(seconds: 4), () {
+   login()async{
+
+    Timer(Duration(seconds: 4), ()  {
       FirebaseAuth auth =FirebaseAuth.instance;
       var user=auth.currentUser;
       if(user != null){

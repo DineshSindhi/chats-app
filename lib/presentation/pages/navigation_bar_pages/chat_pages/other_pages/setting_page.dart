@@ -73,7 +73,7 @@ class SettingPage extends StatelessWidget {
           ListTile(title: mText20('Sign Out',),trailing: InkWell(
               onTap: () async {
                 fireStore.collection('users').doc(fireBaseAuth.currentUser!.uid).update({
-                  'isOnline':true,
+                  'isOnline':false,
                 });
                 await fireBaseAuth.signOut().then((value){ Navigator.pushReplacement(
                     context,

@@ -8,6 +8,7 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -62,10 +63,7 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    calls = fireStore
-        .collection('users')
-        .doc(firebaseAuth.currentUser!.uid)
-        .collection('calls');
+    calls = fireStore.collection('calls');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.teal.shade400,
@@ -81,13 +79,14 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                   size: 30,
                 )),
             SizedBox(
-              width: 50,
-              height: 50,
-              child: CircleAvatar(
-                  backgroundImage: NetworkImage(widget.image!.isNotEmpty
-                      ? '${widget.image}'
-                      : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_kSJS4PDXmamxDis9zrjyfSj2DGKrZb_0mnIRUJJfJJfxvSDTe6Z7lTF3GtQG97aFctQ&usqp=CAU')),
-            ),
+                width: 50,
+                height: 50,
+                child: CircleAvatar(
+                  backgroundImage: widget.image!.isNotEmpty
+                      ? NetworkImage('${widget.image}')
+                      : AssetImage('assets/images/avatar.jpeg')
+                          as ImageProvider,
+                )),
             mySizedBoxW7(),
             StreamBuilder(
                 stream:
@@ -158,8 +157,12 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                   name: widget.name,
                   image: widget.image,
                   time: DateTime.now().millisecondsSinceEpoch,
-                  isVideoCall: true);
+                  isVideoCall: true,
+                  fromId: firebaseAuth.currentUser!.uid,
+                  fromName: firebaseAuth.currentUser!.displayName);
               calls.add(data.toMap());
+              FireBaseRepository.sendCallMessage(
+                  toId: widget.uId!, isVideoCall: true);
             },
           ),
           ZegoSendCallInvitationButton(
@@ -185,8 +188,12 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                   name: widget.name,
                   image: widget.image,
                   time: DateTime.now().millisecondsSinceEpoch,
-                  isVideoCall: false);
+                  isVideoCall: false,
+                  fromId: firebaseAuth.currentUser!.uid,
+                  fromName: firebaseAuth.currentUser!.displayName);
               calls.add(data.toMap());
+              FireBaseRepository.sendCallMessage(
+                  toId: widget.uId!, isVideoCall: false);
             },
           ),
           PopupMenuButton(
@@ -222,37 +229,44 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                       snapshot.data!.docs.length,
                       (index) => MessageModel.fromDocs(
                           snapshot.data!.docs[index].data()));
+                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                    scrollController
+                        .jumpTo(scrollController.position.maxScrollExtent);
+                  });
                   return PageStorage(
-                    bucket: pageStorageBucket,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      controller: scrollController,
-                      key: PageStorageKey('chat_page'),
-                      itemCount: mList.length + 1,
-                      itemBuilder: (context, index) {
-                        if(scrollController.hasClients){
-                          scrollController.animateTo(
-                              scrollController.position.maxScrollExtent,
-                              duration: Duration(milliseconds: 150),
-                              curve: Curves.easeOut);
-                        }
-                        if (index == mList.length) {
-                          return Container(
-                            height: 40,
-                          );
-                        }
-                        return mList.isNotEmpty?
-                          mList[index].fromId ==
-                                firebaseAuth.currentUser!.uid
-                            ? userChat(mList[index])
-                            : anotherUserChat(
-                                mList[index],
-                              ):Center(child: Text('No chat yet..\n start converstion now'),);
-                      },
-                    ),
-                  );
+                      bucket: pageStorageBucket,
+                      child: mList.isNotEmpty
+                          ? ListView.builder(
+                              shrinkWrap: true,
+                              controller: scrollController,
+                              key: PageStorageKey('chat_page'),
+                              itemCount: mList.length,
+                              itemBuilder: (context, index) {
+                                if (index == mList.length) {
+                                  return Container(
+                                    height: 40,
+                                  );
+                                }
+                                return mList.isNotEmpty
+                                    ? mList[index].fromId ==
+                                            firebaseAuth.currentUser!.uid
+                                        ? userChat(mList[index])
+                                        : anotherUserChat(
+                                            mList[index],
+                                          )
+                                    : Center(
+                                        child: Text(
+                                            'No chat yet..\n start converstion now'),
+                                      );
+                              },
+                            )
+                          : Center(
+                              child: mText22('No chat yet...'),
+                            ));
                 } else {
-                  return Center(child: CircularProgressIndicator(),);
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
                 }
               },
             ),
@@ -302,19 +316,29 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                     minLines: 1,
                     autocorrect: true,
                     decoration: InputDecoration(
-                        prefixIcon: GestureDetector(
-                            onTap: () {
-                              focusNode.unfocus();
-                              focusNode.canRequestFocus = false;
-                              setState(() {
-                                _emojiShowing = !_emojiShowing;
-                              });
-                            },
-                            child: Icon(
-                              Icons.emoji_emotions_outlined,
-                              color: Colors.blueGrey.shade700,
-                              size: 30,
-                            )),
+                        prefixIcon: _emojiShowing
+                            ? GestureDetector(
+                                onTap: () async {
+                                  focusNode.requestFocus();
+                                },
+                                child: Icon(
+                                  Icons.keyboard,
+                                  color: Colors.blueGrey.shade700,
+                                  size: 25,
+                                ))
+                            : GestureDetector(
+                                onTap: () {
+                                  focusNode.unfocus();
+                                  focusNode.canRequestFocus = false;
+                                  setState(() {
+                                    _emojiShowing = !_emojiShowing;
+                                  });
+                                },
+                                child: Icon(
+                                  Icons.emoji_emotions_outlined,
+                                  color: Colors.blueGrey.shade700,
+                                  size: 30,
+                                )),
                         suffixIcon: msgSend
                             ? Ink(
                                 width: 20,
@@ -386,7 +410,6 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                                                         .original,
                                                     CropAspectRatioPreset
                                                         .square,
-                                                    // IMPORTANT: iOS supports only one custom aspect ratio in preset list
                                                   ],
                                                 ),
                                                 WebUiSettings(
@@ -441,10 +464,9 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                                 toId: widget.uId!,
                                 msg: msgController.text.toString());
                             msgController.clear();
-                            scrollController.animateTo(
-                                scrollController.position.maxScrollExtent,
-                                duration: Duration(milliseconds: 300),
-                                curve: Curves.easeOut);
+                            setState(() {
+                              msgSend = false;
+                            });
                           },
                           icon: Icon(
                             Icons.send,
@@ -486,75 +508,80 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                 topLeft: Radius.circular(10),
                 bottomRight: Radius.circular(10),
               )),
-          child: messageModel.msgType == 0
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+          child: messageModel.msgType == 2
+              ? Column(
                   children: [
-                    Flexible(child: mText18W('${messageModel.msg}')),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          time,
-                          style: TextStyle(fontSize: 15, color: Colors.white),
-                        ),
-                        mySizedBoxW5(),
-                        Icon(
-                          Icons.done_all_outlined,
-                          color: messageModel.isRead != ''
-                              ? Colors.blue.shade900
-                              : Colors.white54,
-                          size: 18,
-                        ),
-                      ],
-                    )
+                    Container(
+                      height: 65,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.teal.shade300,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                    margin:
+                                        EdgeInsets.only(right: 6, bottom: 3),
+                                    width: 45,
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white70,
+                                        shape: BoxShape.circle),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        FireBaseRepository.sendTextMessage(
+                                            toId: widget.uId!,
+                                            msg: msgController.text.toString());
+                                        msgController.clear();
+                                      },
+                                      icon: Icon(
+                                        messageModel.isVideoCall == true
+                                            ? Icons.videocam
+                                            : Icons.phone_rounded,
+                                        color: Colors.black,
+                                        size: 26,
+                                      ),
+                                    )),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      messageModel.isVideoCall == true
+                                          ? 'Video call'
+                                          : 'Voice Call',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          fontSize: 18),
+                                    ),
+                                    Text(''),
+                                  ],
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Text(
+                                    time,
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                    ),
                   ],
                 )
-              : messageModel.msg != ''
-                  ? Column(
+              : messageModel.msgType == 0
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: CachedNetworkImage(
-                            imageUrl: messageModel.imgUrl!,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          children: [
-                            Flexible(child: mText18W('${messageModel.msg}')),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              time,
-                              style:
-                                  TextStyle(fontSize: 15, color: Colors.white),
-                            ),
-                            mySizedBoxW5(),
-                            Icon(
-                              Icons.done_all_outlined,
-                              color: messageModel.isRead != ''
-                                  ? Colors.blue.shade900
-                                  : Colors.white,
-                              size: 18,
-                            ),
-                          ],
-                        )
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: CachedNetworkImage(
-                              imageUrl: messageModel.imgUrl!,
-                            )),
+                        Flexible(child: mText18W('${messageModel.msg}')),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -574,7 +601,89 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                           ],
                         )
                       ],
-                    ),
+                    )
+                  : messageModel.msg != ''
+                      ? Column(
+                          children: [
+                            Container(
+                              height: 300,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.teal.shade400,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: CachedNetworkImage(
+                                    imageUrl: messageModel.imgUrl!,
+                                    fit: BoxFit.fill,
+                                  )),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Flexible(
+                                    child: mText18W('${messageModel.msg}')),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  time,
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                                mySizedBoxW5(),
+                                Icon(
+                                  Icons.done_all_outlined,
+                                  color: messageModel.isRead != ''
+                                      ? Colors.blue.shade900
+                                      : Colors.white,
+                                  size: 18,
+                                ),
+                              ],
+                            )
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Container(
+                              height: 300,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.teal.shade400,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: CachedNetworkImage(
+                                    imageUrl: messageModel.imgUrl!,
+                                    fit: BoxFit.fill,
+                                  )),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  time,
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                                mySizedBoxW5(),
+                                Icon(
+                                  Icons.done_all_outlined,
+                                  color: messageModel.isRead != ''
+                                      ? Colors.blue.shade900
+                                      : Colors.white54,
+                                  size: 18,
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
         )),
       ],
     );
@@ -602,44 +711,80 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                 bottomRight: Radius.circular(10),
                 topRight: Radius.circular(10),
               )),
-          child: messageModel.msgType == 0
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+          child: messageModel.msgType == 2
+              ? Column(
                   children: [
-                    Flexible(child: mText18W('${messageModel.msg}')),
-                    Align(
-                        alignment: Alignment.bottomRight,
-                        child: Text(
-                          time,
-                          style: TextStyle(fontSize: 15, color: Colors.white),
-                        ))
+                    Container(
+                      height: 65,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.teal.shade300,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                    margin:
+                                        EdgeInsets.only(right: 6, bottom: 3),
+                                    width: 45,
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white70,
+                                        shape: BoxShape.circle),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        FireBaseRepository.sendTextMessage(
+                                            toId: widget.uId!,
+                                            msg: msgController.text.toString());
+                                        msgController.clear();
+                                      },
+                                      icon: Icon(
+                                        messageModel.isVideoCall == true
+                                            ? Icons.videocam
+                                            : Icons.phone_rounded,
+                                        color: Colors.black,
+                                        size: 26,
+                                      ),
+                                    )),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      messageModel.isVideoCall == true
+                                          ? 'Video call'
+                                          : 'Voice Call',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          fontSize: 18),
+                                    ),
+                                    Text(''),
+                                  ],
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Text(
+                                    time,
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                    ),
                   ],
                 )
-              : messageModel.msg != ''
-                  ? Column(
+              : messageModel.msgType == 0
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Container(
-                          height: 300,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: CachedNetworkImage(
-                                imageUrl: messageModel.imgUrl!,fit: BoxFit.fill,
-                              )),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          children: [
-                            Flexible(child: mText18W('${messageModel.msg}')),
-                          ],
-                        ),
+                        Flexible(child: mText18W('${messageModel.msg}')),
                         Align(
                             alignment: Alignment.bottomRight,
                             child: Text(
@@ -649,25 +794,69 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                             ))
                       ],
                     )
-                  : Column(
-                      children: [
-                        ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: CachedNetworkImage(
-                              imageUrl: messageModel.imgUrl!,
-                            )),
-                        SizedBox(
-                          height: 6,
+                  : messageModel.msg != ''
+                      ? Column(
+                          children: [
+                            Container(
+                              height: 300,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.teal.shade400,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: CachedNetworkImage(
+                                    imageUrl: messageModel.imgUrl!,
+                                    fit: BoxFit.fill,
+                                  )),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Flexible(
+                                    child: mText18W('${messageModel.msg}')),
+                              ],
+                            ),
+                            Align(
+                                alignment: Alignment.bottomRight,
+                                child: Text(
+                                  time,
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ))
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Container(
+                              height: 300,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.teal.shade400,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: CachedNetworkImage(
+                                    imageUrl: messageModel.imgUrl!,
+                                    fit: BoxFit.fill,
+                                  )),
+                            ),
+                            SizedBox(
+                              height: 6,
+                            ),
+                            Align(
+                                alignment: Alignment.bottomRight,
+                                child: Text(
+                                  time,
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ))
+                          ],
                         ),
-                        Align(
-                            alignment: Alignment.bottomRight,
-                            child: Text(
-                              time,
-                              style:
-                                  TextStyle(fontSize: 15, color: Colors.white),
-                            ))
-                      ],
-                    ),
         )),
         Container(
           width: MediaQuery.of(context).size.width * 0.4,
@@ -727,7 +916,6 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                                       aspectRatioPresets: [
                                         CropAspectRatioPreset.original,
                                         CropAspectRatioPreset.square,
-                                        // IMPORTANT: iOS supports only one custom aspect ratio in preset list
                                       ],
                                     ),
                                     WebUiSettings(
@@ -789,7 +977,6 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                                       aspectRatioPresets: [
                                         CropAspectRatioPreset.original,
                                         CropAspectRatioPreset.square,
-                                        // IMPORTANT: iOS supports only one custom aspect ratio in preset list
                                       ],
                                     ),
                                     WebUiSettings(
@@ -920,10 +1107,6 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                                   msg: imageMsgController.text.toString(),
                                   imgUrl: imgUrl);
                               msgController.clear();
-                              scrollController.animateTo(
-                                  scrollController.position.maxScrollExtent,
-                                  duration: Duration(milliseconds: 300),
-                                  curve: Curves.easeOut);
                             });
                             Navigator.pop(context);
                           },
@@ -945,35 +1128,36 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
   }
 
   emojiPicker() {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) {
-        if(_emojiShowing){
-          setState(() {
-            _emojiShowing=false;
-          });
-        }else{
-          Navigator.pop(context);
-        }
-      },
-      child: EmojiPicker(
-
-        textEditingController: msgController,
-        scrollController: _scrollController,
-        // onEmojiSelected: (c,emoji){
-        //     setState(() {
-        //       msgController.text= msgController.text+ emoji.emoji;
-        //     });
-        // },
-        config: Config(
-          emojiViewConfig: EmojiViewConfig(),
-          height: MediaQuery.of(context).size.height*0.4,
-          checkPlatformCompatibility: true,
-          categoryViewConfig: const CategoryViewConfig(
-            showBackspaceButton: true,
-            backspaceColor: Colors.teal,
+    return Offstage(
+      offstage: !_emojiShowing,
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (_emojiShowing) {
+            setState(() {
+              _emojiShowing = false;
+            });
+          } else {
+            Navigator.pop(context);
+          }
+        },
+        child: EmojiPicker(
+          textEditingController: msgController,
+          scrollController: _scrollController,
+          onEmojiSelected: (category, emoji) {
+            setState(() {
+              msgSend = true;
+            });
+          },
+          config: Config(
+            height: MediaQuery.of(context).size.height * 0.4,
+            checkPlatformCompatibility: true,
+            categoryViewConfig: const CategoryViewConfig(
+              showBackspaceButton: true,
+              backspaceColor: Colors.teal,
+            ),
+            bottomActionBarConfig: const BottomActionBarConfig(enabled: false),
           ),
-          bottomActionBarConfig: const BottomActionBarConfig(enabled: false),
         ),
       ),
     );

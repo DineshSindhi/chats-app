@@ -32,6 +32,7 @@ class _NavigationBarPageState extends State<NavigationBarPage>
     if(state==AppLifecycleState.resumed){
       fireStore.collection('users').doc(firebaseAuth.currentUser!.uid).update({
         'isOnline':true,
+        'lastSeen':DateTime.now().millisecondsSinceEpoch.toString()
       });
     }else{
 

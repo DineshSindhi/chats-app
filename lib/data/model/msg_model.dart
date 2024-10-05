@@ -7,6 +7,7 @@ class MessageModel {
   String? isRead;
   int? msgType;
   String? imgUrl;
+  bool? isVideoCall;
 
   MessageModel({
     required this.msgId,
@@ -17,6 +18,7 @@ class MessageModel {
      this.isRead='',
      this.msgType=0,
      this.imgUrl='',
+     this.isVideoCall=false,
   });
 
   factory MessageModel.fromDocs(Map<String, dynamic>docs){
@@ -29,6 +31,7 @@ class MessageModel {
       isRead: docs['isRead'],
       msgType: docs['msgType'],
       imgUrl: docs['imgUrl'],
+      isVideoCall: docs['isVideoCall'],
     );
   }
   Map<String, dynamic>toMap(){
@@ -41,6 +44,7 @@ class MessageModel {
       'isRead':isRead,
       'msgType':msgType,
       'imgUrl':imgUrl,
+      'isVideoCall':isVideoCall,
     };
   }
 }

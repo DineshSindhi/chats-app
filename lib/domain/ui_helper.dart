@@ -29,7 +29,7 @@ mText15(String text){
 }
 mText20P(String text){
   return Padding(
-    padding: const EdgeInsets.only(left: 8.0,top: 5),
+    padding: const EdgeInsets.only(left: 10.0,top: 5),
     child: Text(text,style: TextStyle(fontSize: 20),),
   );
 }
