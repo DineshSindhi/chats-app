@@ -6,8 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../data/model/user_model.dart';
+import '../../theme/theme_provider.dart';
 
 class ContactPage extends StatefulWidget {
   @override
@@ -24,7 +26,7 @@ class _ContactPageState extends State<ContactPage> {
   List<UserModel> searchList2 = [];
   var mController = TextEditingController();
   FirebaseAuth fireBaseAuth = FirebaseAuth.instance;
-
+  bool isDark=false;
   @override
   void initState() {
     super.initState();
@@ -61,7 +63,7 @@ class _ContactPageState extends State<ContactPage> {
   @override
   Widget build(BuildContext context) {
     var conLength = firebaseContacts.length + phoneContacts.length;
-
+    isDark=context.watch<ThemeProvider>().isDark;
     return Scaffold(
         appBar: isSearch
             ? AppBar(
@@ -86,7 +88,7 @@ class _ContactPageState extends State<ContactPage> {
                         hintText: 'Search Your Contacts',
                         hintStyle: TextStyle(
                             fontSize: 20,
-                            color: Colors.grey.shade700,
+                            color: isDark?Colors.black54:Colors.grey.shade700,
                             fontWeight: FontWeight.w400),
                         prefixIcon: GestureDetector(
                             onTap: () {
@@ -104,10 +106,13 @@ class _ContactPageState extends State<ContactPage> {
                         border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(50)),
-                        fillColor: Colors.blueGrey.shade100,
+                        fillColor: isDark?Colors.blueGrey.shade300:Colors.blueGrey.shade100,
                         filled: true,
                         contentPadding: EdgeInsets.all(5),
+
+                        prefixIconColor: isDark?Colors.white:Colors.black
                       ),
+
                     ),
                   ),
                 ),
@@ -128,11 +133,12 @@ class _ContactPageState extends State<ContactPage> {
                           isSearch = true;
                         });
                       },
-                      icon: Icon(Icons.search)),
+                      icon: Icon(Icons.search,color: isDark?Colors.white:Colors.black,)),
                   PopupMenuButton(
+                    iconColor: isDark?Colors.white:Colors.black,
                     iconSize: 28,
                     position: PopupMenuPosition.under,
-                    color: Colors.white,
+                    color: isDark?Colors.black:Colors.white,
                     itemBuilder: (context) {
                       return [
                         PopupMenuItem(

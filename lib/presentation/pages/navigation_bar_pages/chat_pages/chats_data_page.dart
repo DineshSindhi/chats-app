@@ -12,10 +12,12 @@ import 'package:flutter/scheduler.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 import '../../../../data/model/call_model.dart';
 import '../../../../domain/ui_helper.dart';
+import '../../theme/theme_provider.dart';
 
 class ChatsDataPage extends StatefulWidget {
   String? name;
@@ -49,7 +51,7 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
   var scrollController = ScrollController();
   bool isTyping = false;
   FocusNode focusNode = FocusNode();
-
+  bool isDark=false;
   @override
   void initState() {
     super.initState();
@@ -63,10 +65,11 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
 
   @override
   Widget build(BuildContext context) {
+   isDark=context.watch<ThemeProvider>().isDark;
     calls = fireStore.collection('calls');
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.teal.shade400,
+        backgroundColor: Colors.teal.shade500,
         leading: Row(
           children: [
             mySizedBoxW2(),
@@ -141,6 +144,7 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
               icon: Icon(
                 Icons.videocam_outlined,
                 size: 35,
+                color: isDark?Colors.white:Colors.black54,
               ),
             ),
             buttonSize: Size(60, 74),
@@ -172,6 +176,7 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
               icon: Icon(
                 Icons.call_rounded,
                 size: 28,
+                color: isDark?Colors.white:Colors.black54,
               ),
             ),
             buttonSize: Size(40, 74),
@@ -197,10 +202,11 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
             },
           ),
           PopupMenuButton(
+            iconColor: isDark?Colors.white:Colors.black54,
             elevation: 0,
             iconSize: 28,
             position: PopupMenuPosition.under,
-            color: Colors.white,
+            color: isDark?Colors.black:Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             itemBuilder: (context) {
@@ -217,7 +223,7 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
           )
         ],
       ),
-      backgroundColor: Colors.blueGrey.shade100,
+      backgroundColor: isDark?Colors.black26:Colors.blueGrey.shade100,
       body: Column(
         children: [
           Expanded(
@@ -311,6 +317,7 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                     },
                     style: TextStyle(
                       fontSize: 20,
+                      color: Colors.black
                     ),
                     maxLines: 4,
                     minLines: 1,

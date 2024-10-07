@@ -39,7 +39,7 @@ class _MobileNoPageState extends State<MobileNoPage> {
             Container(
               margin: EdgeInsets.all(20),
               child: TextFormField(
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 21),
                 maxLength: 10,
                 controller: phoneController,
                 keyboardType: TextInputType.number,
@@ -53,7 +53,7 @@ class _MobileNoPageState extends State<MobileNoPage> {
                   prefixIcon: SizedBox(
                     width: 85,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(top: 10.0,left: 8),
                       child: Text('+91',style: TextStyle(fontSize: 20),),
                     ),
                   ),
@@ -70,64 +70,60 @@ class _MobileNoPageState extends State<MobileNoPage> {
                 },
               ),
             ),
-            SizedBox(height: 15,),
-            Container(
-              margin: EdgeInsets.all(10),
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                  onPressed: ()  async {
-
-                    if(_FORM_KEY.currentState!.validate()){
-                      await firebaseAuth.verifyPhoneNumber(
-                        phoneNumber: '+91${phoneController.text}',
-                        verificationCompleted: (PhoneAuthCredential credential) {
-                        },
-                        verificationFailed: (FirebaseAuthException e) {
-                        },
-                        codeSent: (String verificationId, int? resendToken) {
-                          setState(() {
-                            isLoading=true;
-                          });
-                          Timer(Duration(seconds: 2), () {
-                            if(verificationId!=''){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => OtpPage(verifyId: verificationId,mobileNo: '+91${phoneController.text}',),));
-                            }
-                          });
-                          Timer(Duration(seconds: 2), () {
-                            setState(() {
-                              isLoading=false;
-                            });
-                          });
-                        },
-                        codeAutoRetrievalTimeout: (String verificationId) {},
-                      );
-
-                    }
-
-                  },
-                  child: isLoading?Row(mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(strokeWidth: 5,),
-                      SizedBox(width: 8,),
-                      Text(
-                        'Send Otp',
-                        style:
-                        TextStyle(fontSize: 25, color: Colors.white),
-                      )
-                    ],)
-                      :Text(
-                    'Next',
-                    style:
-                    TextStyle(fontSize: 25, color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    backgroundColor: Colors.teal.shade600,
-                  )),
-            )
-
           ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: Container(
+          margin: EdgeInsets.all(15),
+          width: double.infinity,
+          height: 55,
+          child: FloatingActionButton(
+            backgroundColor: Colors.teal.shade600,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            onPressed: ()async{
+              if(_FORM_KEY.currentState!.validate()){
+                await firebaseAuth.verifyPhoneNumber(
+                  phoneNumber: '+91${phoneController.text}',
+                  verificationCompleted: (PhoneAuthCredential credential) {
+                  },
+                  verificationFailed: (FirebaseAuthException e) {
+                  },
+                  codeSent: (String verificationId, int? resendToken) {
+                    setState(() {
+                      isLoading=true;
+                    });
+                    Timer(Duration(seconds: 2), () {
+                      if(verificationId!=''){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => OtpPage(verifyId: verificationId,mobileNo: '+91${phoneController.text}',),));
+                      }
+                    });
+                    Timer(Duration(seconds: 2), () {
+                      setState(() {
+                        isLoading=false;
+                      });
+                    });
+                  },
+                  codeAutoRetrievalTimeout: (String verificationId) {},
+                );
+
+              }
+            },
+            child: isLoading?Row(mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(strokeWidth: 5,),
+                SizedBox(width: 8,),
+                Text(
+                  'Send Otp',
+                  style:
+                  TextStyle(fontSize: 25, color: Colors.white),
+                )
+              ],)
+                :Text(
+              'Next',
+              style:
+              TextStyle(fontSize: 25, color: Colors.white),
+            ),
+          ),
         ),
       ),
     );

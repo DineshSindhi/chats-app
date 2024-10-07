@@ -7,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 import '../../../../data/model/msg_model.dart';
 import '../../../../data/model/user_model.dart';
+import '../../theme/theme_provider.dart';
 import 'chats_data_page.dart';
 import 'contact_page.dart';
 class ChatsPage extends StatefulWidget {
@@ -35,9 +37,11 @@ class _ChatsPageState extends State<ChatsPage> {
  FirebaseFirestore fireStore = FirebaseFirestore.instance;
  var dt=DateFormat.Hm();
  List<UserModel> mList = [];
+ bool isDark =false;
  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+   isDark=context.watch<ThemeProvider>().isDark;
+   return Scaffold(
       body: ListView(
         children: [
           GestureDetector(
@@ -47,7 +51,7 @@ class _ChatsPageState extends State<ChatsPage> {
               child: Container(width: double.infinity,height: 52,
               margin: const EdgeInsets.all(7),
               decoration: BoxDecoration(
-                color: Colors.blueGrey.shade100,
+                color: isDark?Colors.blueGrey.shade300:Colors.blueGrey.shade100,
                 borderRadius: BorderRadius.circular(22)
               ),
                 child: Row(
@@ -59,7 +63,7 @@ class _ChatsPageState extends State<ChatsPage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(40),
                           child: Image.asset('assets/images/chatbot logo.jpeg',),)),
-                    Text('Ask Chats or Search',style: TextStyle(fontSize: 22,color: Colors.grey.shade700,fontWeight: FontWeight.w400),),
+                    Text('Ask Chats or Search',style: TextStyle(fontSize: 22,color: isDark?Colors.black54:Colors.grey.shade700,fontWeight: FontWeight.w400),),
                   ],
                 ),
               )),

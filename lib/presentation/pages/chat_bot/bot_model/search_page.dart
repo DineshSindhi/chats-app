@@ -3,11 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../../../data/model/msg_model.dart';
 import '../../../../data/model/user_model.dart';
 import '../../../../domain/firebase_repository/firebase_repository.dart';
 import '../../../../domain/ui_helper.dart';
 import '../../navigation_bar_pages/chat_pages/chats_data_page.dart';
+import '../../theme/theme_provider.dart';
 import '../chat_bot_page.dart';
 
 class SearchPage extends StatefulWidget {
@@ -25,6 +27,7 @@ class _SearchPageState extends State<SearchPage> {
   List<UserModel> searchList = [];
   var dt=DateFormat.Hm();
   FirebaseAuth firebaseAuth =FirebaseAuth.instance;
+  bool isDark =false;
   @override
   void initState() {
     super.initState();
@@ -47,6 +50,7 @@ class _SearchPageState extends State<SearchPage> {
   }
   @override
   Widget build(BuildContext context) {
+    isDark=context.watch<ThemeProvider>().isDark;
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -60,9 +64,10 @@ class _SearchPageState extends State<SearchPage> {
                 animationType: Animationtype.slide,
                 onChanged: (value)=>getData(value),
                 decoration: InputDecoration(
-
-                  fillColor: Colors.blueGrey.shade100,
+                  prefixIconColor: isDark?Colors.white:Colors.black,
+                  fillColor:isDark?Colors.blueGrey.shade300:Colors.blueGrey.shade100,
                   filled: true,
+
                   suffixIcon: Container(
                       margin: EdgeInsets.only(right: 7),
                       width: 40,
@@ -85,7 +90,7 @@ class _SearchPageState extends State<SearchPage> {
                           },
                           icon: Icon(
                             Icons.send,
-                            color: Colors.white,
+                            color:    Colors.white,
                           ))),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(22),
@@ -99,7 +104,8 @@ class _SearchPageState extends State<SearchPage> {
                       children: [
                         mySizedBoxW5(),
                         GestureDetector(
-                            onTap: (){Navigator.pop(context);},
+                            onTap: (){
+                              Navigator.pop(context);},
                             child: Icon(Icons.arrow_back_sharp,size: 28,)),
                         Container(
                             margin: EdgeInsets.all(7),
@@ -113,7 +119,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   contentPadding: EdgeInsets.all(12),
                 ),
-
+                hintTextStyle: TextStyle(color: isDark?Colors.black54:Colors.grey.shade700,),
                 hintTexts: const [
                   'Ask me AnyThing',
                   'Ask me a question',

@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
+import '../theme/theme_provider.dart';
 import 'bot_model/model.dart';
 
 class ChatBotPage extends StatefulWidget {
@@ -19,22 +19,22 @@ class _ChatBotPageState extends State<ChatBotPage> {
   var dt=DateFormat.Hm();
   var mController = TextEditingController();
   FirebaseFirestore fireStore=FirebaseFirestore.instance;
-
-
+  bool isDark=false;
    @override
    void initState() {
     super.initState();
     context.read<MessageProvider>().sendMessage(msg: '${widget.query}');
   }
   Widget build(BuildContext context) {
-
+    isDark=context.watch<ThemeProvider>().isDark;
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.teal,
+        title: Text('Chats'),
         leading:  GestureDetector(
             onTap: (){Navigator.pop(context);},
             child: Icon(Icons.arrow_back_rounded,size: 28,)),
       ),
-      backgroundColor: Colors.blueGrey.shade100,
+
       body: Column(
         children: [
           Expanded(
@@ -57,19 +57,21 @@ class _ChatBotPageState extends State<ChatBotPage> {
               decoration: InputDecoration(
                 hintText: 'Ask me a question',
                 filled: true,
-                fillColor: Colors.white,
+                fillColor:isDark?Colors.blueGrey.shade300:Colors.blueGrey.shade100,
                 suffixIcon: Container(
                     margin: EdgeInsets.only(right: 7),
-                    width: 40,height: 40,
-                    decoration: BoxDecoration(color: Colors.grey.shade400,shape: BoxShape.circle),
-                    child: IconButton(
-                      onPressed: (){
-                        if (mController.text.isNotEmpty) {
-                          context.read<MessageProvider>().sendMessage(msg: mController.text.toString());
-                        }
-                        mController.clear();
-                      },
-                      icon: Icon(Icons.arrow_upward,color: Colors.black,)
+                    width: 45,height: 45,
+                    decoration: BoxDecoration(color: isDark?Colors.black54:Colors.blueGrey.shade300,shape: BoxShape.circle),
+                    child: Center(
+                      child: IconButton(
+                        onPressed: (){
+                          if (mController.text.isNotEmpty) {
+                            context.read<MessageProvider>().sendMessage(msg: mController.text.toString());
+                          }
+                          mController.clear();
+                        },
+                        icon: Icon(Icons.arrow_upward,size: 30,color: Colors.white,)
+                      ),
                     ),
                 ),
 

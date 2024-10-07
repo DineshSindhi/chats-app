@@ -165,89 +165,88 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 ),
               ),
             ],),
-
-            Container(
-              margin: EdgeInsets.all(30),
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                  onPressed: () async {
-                    if (_FORM_KEY.currentState!.validate()) {
-                      if (isProfile) {
-                        var time = DateTime.now().millisecondsSinceEpoch;
-                        var image = FirebaseStorage.instance
-                            .ref()
-                            .child('profile_pic/IMG_$time.jpg');
-                        image.putFile(actualImage!).then((value) async {
-                          var imgUrl = await value.ref.getDownloadURL();
-                          var data = UserModel(
-                              uId: widget.uId,
-                              name: mController.text.toString(),
-                              mobile_no: widget.mobileNo,
-                              about: 'Hey Chats',
-                              image: imgUrl,
-                              isOnline: false);
-                          userInfo.doc(widget.uId).set(data.toMap());
-                          userInfo.doc(widget.uId).update({
-                            'name': mController.text.toString(),
-                            'image': imgUrl,
-                          });
-                        });
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NavigationBarPage(),
-                            ));
-                      }
-                      else {
-                        // if(msController.text.isNotEmpty){
-                        //   var data = UserModel(
-                        //       uId: widget.uId,
-                        //       name: msController.text.toString(),
-                        //       mobile_no: widget.mobileNo,
-                        //       about: 'Hey Chats',
-                        //       image: '',
-                        //       isOnline: false);
-                        //   userInfo.doc(widget.uId).set(data.toMap());
-                        //   Navigator.pushReplacement(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //         builder: (context) => const NavigationBarPage(),
-                        //       ));
-                        // }
-                        await firebaseAuth.currentUser!.updateProfile(
-                          displayName: mController.text.toString(),
-                        );
-                        var data = UserModel(
-                            uId: widget.uId,
-                            name: mController.text.toString(),
-                            mobile_no: widget.mobileNo,
-                            about: 'Hey Chats',
-                            image: '',
-                            isOnline: false);
-                        userInfo.doc(widget.uId).set(data.toMap());
-                        userInfo.doc(widget.uId).update({
-                          'name': mController.text.toString(),
-                        });
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NavigationBarPage(),
-                            ));
-                      }
-                    }
-                  },
-                  child: Text(
-                    'Next',
-                    style: TextStyle(fontSize: 25, color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    backgroundColor: Colors.teal.shade600,
-                  )),
-            ),
           ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: Container(
+          margin: EdgeInsets.all(15),
+          width: double.infinity,
+          height: 55,
+          child: FloatingActionButton(
+            backgroundColor: Colors.teal.shade600,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            onPressed: ()async{
+              if (_FORM_KEY.currentState!.validate()) {
+                if (isProfile) {
+                  var time = DateTime.now().millisecondsSinceEpoch;
+                  var image = FirebaseStorage.instance
+                      .ref()
+                      .child('profile_pic/IMG_$time.jpg');
+                  image.putFile(actualImage!).then((value) async {
+                    var imgUrl = await value.ref.getDownloadURL();
+                    var data = UserModel(
+                        uId: widget.uId,
+                        name: mController.text.toString(),
+                        mobile_no: widget.mobileNo,
+                        about: 'Hey Chats',
+                        image: imgUrl,
+                        isOnline: false);
+                    userInfo.doc(widget.uId).set(data.toMap());
+                    userInfo.doc(widget.uId).update({
+                      'name': mController.text.toString(),
+                      'image': imgUrl,
+                    });
+                  });
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NavigationBarPage(),
+                      ));
+                }
+                else {
+                  // if(msController.text.isNotEmpty){
+                  //   var data = UserModel(
+                  //       uId: widget.uId,
+                  //       name: msController.text.toString(),
+                  //       mobile_no: widget.mobileNo,
+                  //       about: 'Hey Chats',
+                  //       image: '',
+                  //       isOnline: false);
+                  //   userInfo.doc(widget.uId).set(data.toMap());
+                  //   Navigator.pushReplacement(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //         builder: (context) => const NavigationBarPage(),
+                  //       ));
+                  // }
+                  await firebaseAuth.currentUser!.updateProfile(
+                    displayName: mController.text.toString(),
+                  );
+                  var data = UserModel(
+                      uId: widget.uId,
+                      name: mController.text.toString(),
+                      mobile_no: widget.mobileNo,
+                      about: 'Hey Chats',
+                      image: '',
+                      isOnline: false);
+                  userInfo.doc(widget.uId).set(data.toMap());
+                  userInfo.doc(widget.uId).update({
+                    'name': mController.text.toString(),
+                  });
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NavigationBarPage(),
+                      ));
+                }
+              }
+            },
+            child: Text(
+              'Next',
+              style:
+              TextStyle(fontSize: 25, color: Colors.white),
+            ),
+          ),
         ),
       ),
     );

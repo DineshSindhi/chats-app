@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../../data/model/user_model.dart';
 import '../../../../../domain/ui_helper.dart';
 import '../../../../on_board/phone_no_verification_page.dart';
+import '../../../theme/theme_provider.dart';
 import 'user_profile_page.dart';
 
 class SettingPage extends StatelessWidget {
@@ -69,6 +72,13 @@ class SettingPage extends StatelessWidget {
           mListTile(widget: Icon(Icons.notifications,size: 30,), onTap: (){}, tittle: 'Notification', subTittle: 'Message, group & call tones'),
           mListTile(widget: Icon(Icons.storage,size: 30,), onTap: (){}, tittle: 'Storage and data', subTittle: 'Network usage, auto-download'),
           mListTile(widget: Icon(Icons.person_add_alt_1,size: 30,), onTap: (){}, tittle: 'Invite a friend', subTittle: ''),
+          SwitchListTile(
+            activeColor: Colors.teal,
+            title: Text('Theme'),
+              value: context.watch<ThemeProvider>().isDark,
+              onChanged: (value){
+                context.read<ThemeProvider>().changeTheme();
+              }),
           Container(width: double.infinity,height: 1,color: Colors.blueGrey.shade200,),
           ListTile(title: mText20('Sign Out',),trailing: InkWell(
               onTap: () async {

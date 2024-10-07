@@ -67,55 +67,8 @@ void initState() {
                 SizedBox(width: 11,),
                 myTextField(controller: otpController6,first: false,last: true),
               ],),
-            Container(
-              margin: EdgeInsets.all(30),
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                  onPressed: ()  async {
-                    List<dynamic> mList=[otpController1.text,otpController2.text,otpController3.text,otpController4.text,otpController5.text,otpController6.text];
-                    if(mList.length==6){
-                      String smsCode = mList.join();
-                      print(mList.join());
-                      PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: '${widget.verifyId}', smsCode: smsCode);
-                      var cred=await firebaseAuth.signInWithCredential(credential);
-                      if(cred.user!.uid.isNotEmpty){
-                        isLoading=true;
-                        setState(() {});
-                        Timer(Duration(seconds: 2), () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UserInfoPage(uId: cred.user!.uid,mobileNo: widget.mobileNo!,)));
-                        });
-                        Timer(Duration(seconds: 2), () {
-                          setState(() {
-                            isLoading=false;
-                          });
-                        });
-
-                      }
-                    }
-
-                  },
-                  child: isLoading?Row(mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(strokeWidth: 5,),
-                      SizedBox(width: 8,),
-                      Text(
-                        'Verify',
-                        style:
-                        TextStyle(fontSize: 25, color: Colors.white),
-                      )
-                    ],):
-                  Text(
-                    'Next',
-                    style:
-                    TextStyle(fontSize: 25, color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    backgroundColor: Colors.teal.shade600,
-                  )),
-            ),
-            Text(timerCount!=0? 'Didn\'t receive otp   00:${timerCount.toString()}':''),
+            SizedBox(height: 20,),
+            Text(timerCount!=0? 'Didn\'t receive otp   00:${timerCount.toString()}':'',style: TextStyle(fontSize: 15)),
             SizedBox(height: 5,),
             timerCount==0?
             TextButton(onPressed: (){}, child: Text('Resend Otp',style: TextStyle(color: Colors.teal,fontSize: 18),),style: ElevatedButton.styleFrom(backgroundColor: Colors.white, ),):
@@ -123,6 +76,53 @@ void initState() {
           ],),
 
         ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        margin: EdgeInsets.all(15),
+        width: double.infinity,
+        height: 55,
+        child: FloatingActionButton(
+          backgroundColor: Colors.teal.shade600,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          onPressed: ()async{
+            List<dynamic> mList=[otpController1.text,otpController2.text,otpController3.text,otpController4.text,otpController5.text,otpController6.text];
+            if(mList.length==6){
+              String smsCode = mList.join();
+              print(mList.join());
+              PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: '${widget.verifyId}', smsCode: smsCode);
+              var cred=await firebaseAuth.signInWithCredential(credential);
+              if(cred.user!.uid.isNotEmpty){
+                isLoading=true;
+                setState(() {});
+                Timer(Duration(seconds: 2), () {
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UserInfoPage(uId: cred.user!.uid,mobileNo: widget.mobileNo!,)));
+                });
+                Timer(Duration(seconds: 2), () {
+                  setState(() {
+                    isLoading=false;
+                  });
+                });
+
+              }
+            }
+          },
+          child: isLoading?Row(mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(strokeWidth: 5,),
+              SizedBox(width: 8,),
+              Text(
+                'Verify',
+                style:
+                TextStyle(fontSize: 25, color: Colors.white),
+              )
+            ],):
+          Text(
+            'Next',
+            style:
+            TextStyle(fontSize: 25, color: Colors.white),
+          ),
+        ),
       ),
     );
   }
