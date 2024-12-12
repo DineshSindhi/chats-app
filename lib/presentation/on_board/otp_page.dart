@@ -4,8 +4,6 @@ import 'package:chats/presentation/on_board/user_info_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../../data/model/user_model.dart';
 class OtpPage extends StatefulWidget {
   String?verifyId;
   String?mobileNo;

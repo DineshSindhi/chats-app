@@ -107,7 +107,7 @@ class _ChatsPageState extends State<ChatsPage> {
                            subtitle: StreamBuilder(stream: FireBaseRepository.getLastMsg(toId: mData.uId!),
                                builder: (context, lastMsgSnapshot) {
                              if(snapshot.connectionState==ConnectionState.waiting){
-                               return CircularProgressIndicator();
+                               return const CircularProgressIndicator();
                              }
                              if(lastMsgSnapshot.hasData){
                                var lastMsg=MessageModel.fromDocs(lastMsgSnapshot.data!.docs[0].data());

@@ -16,7 +16,7 @@ import firebase_storage
 import package_info_plus
 import path_provider_foundation
 import shared_preferences_foundation
-import sqflite
+import sqflite_darwin
 import wakelock_plus
 import zego_express_engine
 import zego_zim

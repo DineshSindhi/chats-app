@@ -1,10 +1,6 @@
 import 'package:chats/data/model/msg_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../data/model/call_model.dart';
-
 class FireBaseRepository {
   static final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   static final FirebaseFirestore fireStore = FirebaseFirestore.instance;

@@ -210,7 +210,7 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             itemBuilder: (context) {
-              return [
+              return const[
                 PopupMenuItem(child: Text('View contact')),
                 PopupMenuItem(child: Text('Media, links, and docs')),
                 PopupMenuItem(child: Text('Search')),
@@ -818,7 +818,7 @@ class _ChatsDataPageState extends State<ChatsDataPage> {
                                     fit: BoxFit.fill,
                                   )),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                             Row(

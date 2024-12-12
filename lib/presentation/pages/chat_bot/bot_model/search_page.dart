@@ -72,7 +72,7 @@ class _SearchPageState extends State<SearchPage> {
                       margin: EdgeInsets.only(right: 7),
                       width: 40,
                       height: 40,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: Colors.teal, shape: BoxShape.circle),
                       child: IconButton(
                           onPressed: () {
@@ -132,7 +132,7 @@ class _SearchPageState extends State<SearchPage> {
             Expanded(
               child:ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: searchList.length,
                 itemBuilder: (context, index) {
                   var mData=searchList[index];

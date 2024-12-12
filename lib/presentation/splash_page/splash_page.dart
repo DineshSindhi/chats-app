@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:chats/presentation/pages/navigation_bar_pages/navigation_bar_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../on_board/phone_no_verification_page.dart';
 

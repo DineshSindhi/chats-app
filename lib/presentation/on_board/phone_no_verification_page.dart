@@ -1,13 +1,10 @@
 
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import '../../domain/ui_helper.dart';
-import '../pages/navigation_bar_pages/navigation_bar_page.dart';
 import 'otp_page.dart';
 class MobileNoPage extends StatefulWidget {
   @override
@@ -45,7 +42,7 @@ class _MobileNoPageState extends State<MobileNoPage> {
                 keyboardType: TextInputType.number,
                 cursorColor: Colors.teal,
                 autofocus: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   focusedBorder:UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.teal,width: 2)
                   ),
@@ -53,7 +50,7 @@ class _MobileNoPageState extends State<MobileNoPage> {
                   prefixIcon: SizedBox(
                     width: 85,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 10.0,left: 8),
+                      padding: EdgeInsets.only(top: 10.0,left: 8),
                       child: Text('+91',style: TextStyle(fontSize: 20),),
                     ),
                   ),

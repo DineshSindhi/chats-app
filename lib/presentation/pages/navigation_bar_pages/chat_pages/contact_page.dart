@@ -64,14 +64,14 @@ class _ContactPageState extends State<ContactPage> {
   Widget build(BuildContext context) {
     var conLength = firebaseContacts.length + phoneContacts.length;
     isDark=context.watch<ThemeProvider>().isDark;
-    return Scaffold(
+    return  Scaffold(
         appBar: isSearch
             ? AppBar(
                 leading: Padding(
-                  padding: EdgeInsets.only(left: 8, right: 8),
+                  padding: const EdgeInsets.only(left: 8, right: 8),
                   child: PopScope(
                     canPop: false,
-                    onPopInvoked: (didPop) {
+                    onPopInvokedWithResult: (didPop,result) {
                       if(isSearch){
                         setState(() {
                           isSearch=false;
@@ -99,7 +99,7 @@ class _ContactPageState extends State<ContactPage> {
                               });
                               mController.clear();
                             },
-                            child: Icon(
+                            child: const Icon(
                               Icons.arrow_back_sharp,
                               size: 28,
                             )),
@@ -108,7 +108,7 @@ class _ContactPageState extends State<ContactPage> {
                             borderRadius: BorderRadius.circular(50)),
                         fillColor: isDark?Colors.blueGrey.shade300:Colors.blueGrey.shade100,
                         filled: true,
-                        contentPadding: EdgeInsets.all(5),
+                        contentPadding: const EdgeInsets.all(5),
 
                         prefixIconColor: isDark?Colors.white:Colors.black
                       ),
@@ -141,16 +141,16 @@ class _ContactPageState extends State<ContactPage> {
                     color: isDark?Colors.black:Colors.white,
                     itemBuilder: (context) {
                       return [
-                        PopupMenuItem(
+                        const PopupMenuItem(
                           child: Text('Invite Friend'),
                         ),
                         PopupMenuItem(
-                          child: Text('Refresh'),
+                          child: const Text('Refresh'),
                           onTap: () {
                             setState(() {
                               isLoading = true;
                             });
-                            Timer(Duration(seconds: 2), () {
+                            Timer(const Duration(seconds: 2), () {
                               setState(() {
                                 isLoading = false;
                               });
@@ -166,26 +166,26 @@ class _ContactPageState extends State<ContactPage> {
                 leadingWidth: 28,
               ),
         body: isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : firebaseContacts.isNotEmpty || phoneContacts.isNotEmpty
                 ? searchList1.isNotEmpty || searchList2.isNotEmpty
                     ? ListView(
                         children: [
-                          ListTile(
+                          const ListTile(
                             leading: CircleAvatar(backgroundColor: Colors.teal,
                             child: Center(child: Icon(Icons.group_add,color: Colors.white,),),
                             ),
                             title: Text('New group',style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
-                          ListTile(
+                          const ListTile(
                             leading: CircleAvatar(backgroundColor: Colors.teal,
                             child: Center(child: Icon(Icons.person_add_alt_1,color: Colors.white,),),
                             ),
                             title: Text('New contact',style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
-                          ListTile(
+                          const ListTile(
                             leading: CircleAvatar(backgroundColor: Colors.teal,
                             child: Center(child: Icon(Icons.groups,color: Colors.white,),),
                             ),
@@ -195,7 +195,7 @@ class _ContactPageState extends State<ContactPage> {
                               ? 'Contacts on Chats'
                               : ''),
                           ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemCount: isSearch
                                 ? searchList1.length
@@ -221,7 +221,7 @@ class _ContactPageState extends State<ContactPage> {
                                     backgroundColor: Colors.grey,
                                     backgroundImage: mData.image != ''
                                         ? NetworkImage('${mData.image}')
-                                        : AssetImage(
+                                        : const AssetImage(
                                                 'assets/images/avatar.jpeg')
                                             as ImageProvider),
                                 title: Text(
@@ -236,7 +236,7 @@ class _ContactPageState extends State<ContactPage> {
                           mText20P(
                               searchList2.isNotEmpty ? 'Invite to Chats' : ''),
                           ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemCount: isSearch
                                 ? searchList2.length
@@ -251,7 +251,7 @@ class _ContactPageState extends State<ContactPage> {
                                 title: mText18(
                                   '${mData.name}',
                                 ),
-                                trailing: Text('Invite',
+                                trailing: const Text('Invite',
                                     style: TextStyle(
                                         color: Colors.teal, fontSize: 18)),
                               );
@@ -260,24 +260,24 @@ class _ContactPageState extends State<ContactPage> {
                         ],
                       )
                     : mController.text.isNotEmpty
-                        ? Center(
+                        ? const Center(
                             child: Text('No Result Found'),
                           )
                         : ListView(
                             children: [
-                              ListTile(
+                              const ListTile(
                                 leading: CircleAvatar(backgroundColor: Colors.teal,
                                   child: Center(child: Icon(Icons.group_add,color: Colors.white,),),
                                 ),
                                 title: Text('New group',style: TextStyle(fontWeight: FontWeight.bold)),
                               ),
-                              ListTile(
+                              const ListTile(
                                 leading: CircleAvatar(backgroundColor: Colors.teal,
                                   child: Center(child: Icon(Icons.person_add_alt_1,color: Colors.white,),),
                                 ),
                                 title: Text('New contact',style: TextStyle(fontWeight: FontWeight.bold)),
                               ),
-                              ListTile(
+                              const ListTile(
                                 leading: CircleAvatar(backgroundColor: Colors.teal,
                                   child: Center(child: Icon(Icons.groups,color: Colors.white,),),
                                 ),
@@ -285,7 +285,7 @@ class _ContactPageState extends State<ContactPage> {
                               ),
                               mText20P('Contacts on Chats'),
                               ListView.builder(
-                                physics: NeverScrollableScrollPhysics(),
+                                physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: firebaseContacts.length,
                                 itemBuilder: (context, index) {
@@ -306,7 +306,7 @@ class _ContactPageState extends State<ContactPage> {
                                         backgroundColor: Colors.grey,
                                         backgroundImage: mData.image != ''
                                             ? NetworkImage('${mData.image}')
-                                            : AssetImage(
+                                            : const AssetImage(
                                                     'assets/images/avatar.jpeg')
                                                 as ImageProvider),
                                     title: Text(
@@ -320,7 +320,7 @@ class _ContactPageState extends State<ContactPage> {
                               ),
                               mText20P('Invite to Chats'),
                               ListView.builder(
-                                physics: NeverScrollableScrollPhysics(),
+                                physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: phoneContacts.length,
                                 itemBuilder: (context, index) {
@@ -332,7 +332,7 @@ class _ContactPageState extends State<ContactPage> {
                                     title: mText18(
                                       '${mData.name}',
                                     ),
-                                    trailing: Text('Invite',
+                                    trailing: const Text('Invite',
                                         style: TextStyle(
                                             color: Colors.teal, fontSize: 18)),
                                   );
@@ -340,7 +340,7 @@ class _ContactPageState extends State<ContactPage> {
                               )
                             ],
                           )
-                : Center(
+                : const Center(
                     child: Text('No Contact Found in your Phone'),
                   ));
   }
@@ -384,7 +384,7 @@ class _ContactPageState extends State<ContactPage> {
         }
 
         isContactFound = false;
-        Timer(Duration(milliseconds: 100), () {
+        Timer(const Duration(milliseconds: 100), () {
           if (mounted) {
             setState(() {
               isLoading = false;
